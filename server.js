@@ -2,29 +2,31 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+
 const contactRoute = require('./routes/contactRoute');
 
 dotenv.config();
+
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Backend API Route
+// API route
 app.use('/api/contact', contactRoute);
 
-// ✅ Test route for backend root
-app.get('/', (req, res) => {
-  res.send('Server is up and running! 🚀');
-});
+// Serve frontend from client/build
+const clientBuildPath = path.join(__dirname, '..', 'client', 'build');
+app.use(express.static(clientBuildPath));
 
-// ✅ Serve frontend static files
-app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
-
-// ✅ Handle all other frontend routes
+// Fallback to index.html for frontend routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'client', 'build', 'index.html'));
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
+// Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
